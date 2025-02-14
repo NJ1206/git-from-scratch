@@ -45,15 +45,16 @@ fn init(repo_name: Option<&str>) -> Result<bool, ()> {
 
     // dirs under the .git dir
     fs::create_dir(git_dir.clone()).unwrap();
-    fs::create_dir(format!("{}/hooks", git_dir.clone())).unwrap();
-    fs::create_dir(format!("{}/info", git_dir.clone())).unwrap();
-    fs::create_dir(format!("{}/objects", git_dir.clone())).unwrap();
-    fs::create_dir(format!("{}/refs", git_dir.clone())).unwrap();
+    let sub_dirs = vec!["hooks", "info", "objects", "refs"];
+    for dir in sub_dirs {
+        fs::create_dir(format!("{}/{dir}", git_dir.clone())).unwrap();
+    }
 
     // files under the .git dir
-    File::create(format!("{}/config", git_dir.clone())).unwrap();
-    File::create(format!("{}/description", git_dir.clone())).unwrap();
-    File::create(format!("{}/HEAD", git_dir.clone())).unwrap();
+    let files = vec!["config", "description", "HEAD"];
+    for file in files {
+        File::create(format!("{}/{file}", git_dir.clone())).unwrap();
+    }
 
     return Ok(true);
 }
