@@ -20,7 +20,7 @@ fn init() {
         .into_string()
         .unwrap();
 
-    let git_dir = current_dir + "/.git";
+    let git_dir = current_dir + "/.test";
     let is_initialized = Path::new(&git_dir).is_dir();
 
     if is_initialized {
@@ -28,7 +28,7 @@ fn init() {
         return;
     }
 
-    let _cmds: Vec<Vec<&str>> = vec![
+    let cmds: Vec<Vec<&str>> = vec![
         vec!["mkdir", ".test"], // create an empty .test dir
         // files and dirs under the .test dir
         vec!["touch", ".test/config"],
@@ -39,9 +39,17 @@ fn init() {
         vec!["mkdir", ".test/objects"],
         vec!["mkdir", ".test/refs"],
     ];
+
+    for cmd in &cmds {
+        match execute_programs(cmd[0], Some(cmd[1..].to_vec())) {
+            Ok(_v) => (),
+            Err(e) => panic!("Error initialising GIT repository: {e}"),
+        }
+    }
+    
 }
 
-fn execute_programs(cmd: String, args: Option<Vec<&str>>) -> Result<(bool, String), ()> {
+fn execute_programs(cmd: &str, args: Option<Vec<&str>>) -> Result<String, String> {
     let output;
     match args {
         Some(args) => output = Command::new(cmd).arg(args.join(" ")).output(),
@@ -49,7 +57,7 @@ fn execute_programs(cmd: String, args: Option<Vec<&str>>) -> Result<(bool, Strin
     }
 
     return match &output {
-        Ok(v) => Ok((true, String::from_utf8_lossy(&v.stdout).to_string())),
-        Err(e) => Ok((false, format!("{e}"))),
+        Ok(v) => Ok(String::from_utf8_lossy(&v.stdout).to_string()),
+        Err(e) => Err(format!("{e}")),
     };
 }
